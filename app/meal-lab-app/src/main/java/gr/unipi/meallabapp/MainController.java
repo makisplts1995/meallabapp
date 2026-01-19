@@ -55,9 +55,7 @@ public class MainController {
     @FXML
     private Label mealName; // Όνομα συνταγής
     @FXML
-    private Label categoryLabel; // Κατηγορία συνταγής
-    @FXML
-    private Label areaLabel; // Περιοχή συνταγής
+    private Label tagsLabel; // Combined tags (Category | Area)
     @FXML
     private TextArea ingredientsArea; // Περιοχή κειμένου για τα υλικά
     @FXML
@@ -66,13 +64,15 @@ public class MainController {
     private Button addToFavoritesBtn; // Κουμπί προσθήκης στα αγαπημένα
     @FXML
     private Button removeFavoriteBtn; // Κουμπί αφαίρεσης από τα αγαπημένα
-
     @FXML
     private ComboBox<String> searchTypeCombo; // Επιλογή τρόπου αναζήτησης
     @FXML
     private Button searchBtn; // Κουμπί εκτέλεσης αναζήτησης
     @FXML
     private Button ingredientBtn; // Κουμπί αναζήτησης με βάση υλικό
+
+    @FXML
+    private Label userLabel; // εμφάνιση ονόματος χρήστη
 
     // Υπηρεσίες για ανάκτηση δεδομένων από το API και αποθήκευση τοπικά
     private final MealService mealService = new MealService();
@@ -87,16 +87,43 @@ public class MainController {
      */
     @FXML
     public void initialize() {
+        /*
+         * Εμφάνιση ονόματος χρήστη στην πάνω δεξιά γωνία.
+         * Παίρνουμε το όνομα από το UserDataService και το μορφοποιούμε
+         * ώστε να ξεκινάει με κεφαλαίο γράμμα.
+         */
+        if (userLabel != null) {
+            String currentUser = userDataService.getUsername();
+            // Κεφαλαίο το πρώτο γράμμα για ωραία εμφάνιση
+            if (currentUser != null && !currentUser.isEmpty()) {
+                String displayUser = currentUser.substring(0, 1).toUpperCase() + currentUser.substring(1);
+                userLabel.setText("User: " + displayUser);
+            }
+        }
+
         // Initialize search controls
         setupSearchControls(); // Ρύθμιση φίλτρων αναζήτησης
 
         setupTableSelections(); // Ρύθμιση λιστών (tables)
         setupAccordion(); // Ρύθμιση του μενού πλοήγησης
 
-        // Αρχική κατάσταση: Δεν βλέπουμε τα αγαπημένα
         // Αρχική κατάσταση: Δεν βλέπουμε τα αγαπημένα ούτε το ιστορικό
         updateActionButtonsVisibility(true, false, false);
         resetAccordionState(); // Ανοίγουμε την πρώτη καρτέλα
+    }
+
+    /*
+     * Λειτουργία Αποσύνδεσης (Logout).
+     * Όταν πατηθεί το κουμπί, επιστρέφουμε στην αρχική οθόνη
+     * ώστε να μπορεί να συνδεθεί άλλος χρήστης.
+     */
+    @FXML
+    private void handleLogout() {
+        try {
+            App.setRoot("welcome_view");
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // Ρυθμίζει τα ComboBox και τα listeners για την αναζήτηση
@@ -171,8 +198,8 @@ public class MainController {
     // Αναζήτηση με βάση το όνομα (χειριστής κουμπιού "Search")
     @FXML
     private void handleSearch() {
-        String query = searchField.getText().trim();
-        if (query.isEmpty())
+        String query = searchField.getText();
+        if (query.isBlank())
             return;
 
         statusLabel.setText("Searching for: " + query);
@@ -188,8 +215,8 @@ public class MainController {
     // Αναζήτηση με βάση συστατικό
     @FXML
     private void handleSearchIngredient() {
-        String query = searchField.getText().trim();
-        if (query.isEmpty())
+        String query = searchField.getText();
+        if (query.isBlank())
             return;
 
         statusLabel.setText("Searching by ingredient: " + query);
@@ -327,7 +354,6 @@ public class MainController {
     private void updateActionButtonsVisibility(boolean isSearch, boolean isFavorites, boolean isHistory) {
         // Add to Favorites: Ορατό σε Search και History (αν θέλουμε), κρυφό στα
         // Favorites
-        // Σύμφωνα με τη λογική μας: μόνο όταν δεν είναι ήδη στα Favorites
         addToFavoritesBtn.setVisible(!isFavorites);
         addToFavoritesBtn.setManaged(!isFavorites);
 
@@ -373,8 +399,7 @@ public class MainController {
         this.currentRecipe = recipe;
         detailsBox.setVisible(true);
         mealName.setText(recipe.getName());
-        categoryLabel.setText(recipe.getCategory());
-        areaLabel.setText(recipe.getArea());
+        tagsLabel.setText(recipe.getCategory() + " | " + recipe.getArea());
 
         // Μορφοποίηση λίστας υλικών με bullets
         StringBuilder ingredientsText = new StringBuilder();
@@ -396,8 +421,8 @@ public class MainController {
         }
     }
 
-    // Αλλάζει την ορατότητα των πεδίων αναζήτησης ανάλογα με την επιλογή στο
-    // ComboBox
+    // Αλλάζει την ορατότητα των πεδίων αναζήτησης ανάλογα με την επιλογή
+    // στοComboBox
     private void updateSearchMode(String mode) {
         if (mode == null)
             return;
@@ -414,24 +439,24 @@ public class MainController {
 
         // Εμφανίζουμε μόνο ότι χρειάζεται
         switch (mode) {
-            case SEARCH_BY_NAME:
+            case SEARCH_BY_NAME -> {
                 searchField.setVisible(true);
                 searchField.setManaged(true);
                 searchBtn.setVisible(true);
                 searchBtn.setManaged(true);
                 searchField.setPromptText("Enter recipe name...");
-                break;
-            case SEARCH_BY_INGREDIENT:
+            }
+            case SEARCH_BY_INGREDIENT -> {
                 searchField.setVisible(true);
                 searchField.setManaged(true);
                 ingredientBtn.setVisible(true);
                 ingredientBtn.setManaged(true);
                 searchField.setPromptText("Enter ingredient...");
-                break;
-            case SEARCH_BY_CATEGORY:
+            }
+            case SEARCH_BY_CATEGORY -> {
                 categoryCombo.setVisible(true);
                 categoryCombo.setManaged(true);
-                break;
+            }
         }
     }
 

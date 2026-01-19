@@ -18,7 +18,12 @@ public class MealService {
 
     // Constructor: Αρχικοποιεί τη σύνδεση παίρνοντας το instance από τον Connector
     public MealService() {
-        this.api = MealApiConnector.getMealApiInterface();
+        this(MealApiConnector.getMealApiInterface());
+    }
+
+    // Constructor για Dependency Injection (χρήσιμο για Tests)
+    public MealService(MealApiInterface api) {
+        this.api = api;
     }
 
     // 1. Αναζήτηση συνταγών με βάση το όνομα
@@ -35,20 +40,17 @@ public class MealService {
     }
 
     // Γενική μέθοδος φιλτραρίσματος βάσει Κατηγορίας (c), Περιοχής (a) ή Υλικού (i)
+    // Γενική μέθοδος φιλτραρίσματος βάσει Κατηγορίας (c), Περιοχής (a) ή Υλικού (i)
     public List<Recipe> filterRecipes(String type, String value) throws IOException {
-        Call<MealResponse> call;
-        switch (type) {
-            case "c":
-                call = api.filterMealsByCategory(value);
-                break;
-            case "a":
-                call = api.filterMealsByArea(value);
-                break;
-            case "i":
-                call = api.filterMealsByMainIngredient(value);
-                break;
-            default:
-                return Collections.emptyList();
+        Call<MealResponse> call = switch (type) {
+            case "c" -> api.filterMealsByCategory(value);
+            case "a" -> api.filterMealsByArea(value);
+            case "i" -> api.filterMealsByMainIngredient(value);
+            default -> null;
+        };
+
+        if (call == null) {
+            return Collections.emptyList();
         }
         return executeCallList(call);
     }

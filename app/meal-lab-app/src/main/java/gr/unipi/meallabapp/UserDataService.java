@@ -15,8 +15,11 @@ import java.util.List;
  */
 public class UserDataService {
 
-    // Το όνομα του αρχείου όπου αποθηκεύονται τα δεδομένα
-    private String fileName = "user_data.json";
+    // Βασικό όνομα αρχείου
+    private static final String DEFAULT_FILE_NAME = "user_data.json";
+    private String currentFileName = DEFAULT_FILE_NAME;
+    private String currentUsername = "Guest"; // Default username
+
     // Η μοναδική instance (Singleton)
     private static UserDataService instance;
     // Jackson Mapper για μετατροπή Java αντικειμένων σε JSON και αντίστροφα
@@ -39,13 +42,45 @@ public class UserDataService {
 
     // Setter για να αλλάζουμε το αρχείο στα JUnit tests
     public void setFileNameForTesting(String fileName) {
-        this.fileName = fileName;
+        this.currentFileName = fileName;
         loadData(); // Ξαναφορτώνουμε τα δεδομένα από το νέο αρχείο
+    }
+
+    /*
+     * Ορισμός χρήστη και αλλαγή αρχείου αποθήκευσης,
+     * Αυτή η μέθοδος δέχεται το όνομα του χρήστη (username)
+     * και ενημερώνει το όνομα του αρχείου (currentFileName).
+     * Έτσι, κάθε χρήστης έχει τη δική του ανεξάρτητη λίστα αγαπημένων.
+     */
+    public void setUser(String username) {
+        if (username != null && !username.trim().isEmpty()) {
+            this.currentUsername = username.trim();
+            /*
+             * Καθαρισμός ονόματος και μετατροπή σε πεζά (case insensitive)
+             * για να μην έχουμε προβλήματα με την αποθήκευση και το handle των users.
+             * Π.χ. το "Makis" ή το "MAKIS" γίνεται "makis" και το αρχείο
+             * "user_data_makis.json"
+             */
+            String safeName = username.trim().toLowerCase().replaceAll("[^a-z0-9]", "_");
+            this.currentFileName = "user_data_" + safeName + ".json";
+        } else {
+            this.currentUsername = "Guest";
+            this.currentFileName = DEFAULT_FILE_NAME;
+        }
+        loadData(); // Φόρτωση δεδομένων του συγκεκριμένου χρήστη
+    }
+
+    public String getCurrentUserFile() {
+        return currentFileName;
+    }
+
+    public String getUsername() {
+        return currentUsername;
     }
 
     // Φόρτωση δεδομένων από το αρχείο JSON κατά την εκκίνηση
     private void loadData() {
-        File file = new File(fileName);
+        File file = new File(currentFileName);
         if (file.exists()) {
             try {
                 data = mapper.readValue(file, UserData.class);
@@ -63,7 +98,7 @@ public class UserDataService {
     // Αποθήκευση των τρεχόντων δεδομένων στο αρχείο
     private void saveData() {
         try {
-            mapper.writeValue(new File(fileName), data);
+            mapper.writeValue(new File(currentFileName), data);
         } catch (IOException e) {
             e.printStackTrace();
         }

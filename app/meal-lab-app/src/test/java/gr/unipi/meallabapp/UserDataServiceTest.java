@@ -79,4 +79,85 @@ class UserDataServiceTest {
 
         assertTrue(service.getCooked().stream().anyMatch(r -> r.getId().equals("88888")));
     }
+
+    @Test
+    @Order(4)
+    void testMultiUserIsolation() {
+        // Ensure clean state from previous runs
+        new File("user_data_usera.json").delete();
+        new File("user_data_userb.json").delete();
+
+        // Scenario: User A adds a favorite
+        service.setUser("UserA");
+        Recipe r1 = new Recipe();
+        r1.setId("1");
+        r1.setName("UserA Recipe");
+        service.addFavorite(r1);
+        assertTrue(service.getFavorites().stream().anyMatch(r -> r.getId().equals("1")));
+
+        // Switch to User B
+        service.setUser("UserB");
+        // Should NOT have UserA's favorite
+        assertFalse(service.getFavorites().stream().anyMatch(r -> r.getId().equals("1")),
+                "UserB should not see UserA's favorites");
+
+        // Add something for User B
+        Recipe r2 = new Recipe();
+        r2.setId("2");
+        r2.setName("UserB Recipe");
+        service.addFavorite(r2);
+
+        // Switch back to User A
+        service.setUser("UserA");
+        // Should have UA1 but not UB1 (which is now ID 2)
+        assertTrue(service.getFavorites().stream().anyMatch(r -> r.getId().equals("1")));
+        assertFalse(service.getFavorites().stream().anyMatch(r -> r.getId().equals("2")));
+
+        // Cleanup extra files created by this test
+        new File("user_data_usera.json").delete();
+        new File("user_data_userb.json").delete();
+    }
+
+    @Test
+    @Order(6)
+    void testInvalidCharacters() {
+        // Δοκιμή με απαγορευμένους χαρακτήρες (Windows reserved chars)
+        // π.χ. < > : " / \ | ? *
+        String trickyName = "My<User/Name:is*Makis?";
+        service.setUser(trickyName);
+
+        String fileName = service.getCurrentUserFile();
+        // Το expected είναι: my<user/name:is*makis? -> my_user_name_is_makis_
+        // Όλα τα σύμβολα γίνονται "_"
+        assertFalse(fileName.contains("<"), "Should not contain less than");
+        assertFalse(fileName.contains(":"), "Should not contain colon");
+        assertFalse(fileName.contains("*"), "Should not contain star");
+        assertFalse(fileName.contains("?"), "Should not contain question mark");
+        assertTrue(fileName.startsWith("user_data_my_user_name_is_makis_"), "Should be sanitized");
+
+        new File(fileName).delete();
+    }
+
+    @Test
+    @Order(5)
+    void testGreekUser() {
+        // Δοκιμή με Ελληνικό όνομα
+        service.setUser("Μάκης");
+
+        // Επιβεβαίωση ότι το αρχείο έχει σωστό όνομα (μάκης - lowercase)
+        // ΣΗΜΕΙΩΣΗ: Η υλοποίηση αντικαθιστά όλα τα μη-λατινικά με "_"
+        String fileName = service.getCurrentUserFile();
+        // Μάκης -> _____
+        assertTrue(fileName.contains("_____"), "Filename should contain underscores for non-latin characters");
+
+        Recipe r = new Recipe();
+        r.setId("1");
+        r.setName("Recipe");
+        service.addFavorite(r);
+
+        assertTrue(service.getFavorites().stream().anyMatch(f -> f.getId().equals("1")));
+
+        // Cleanup
+        new File(fileName).delete();
+    }
 }

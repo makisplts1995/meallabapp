@@ -48,4 +48,27 @@ class RecipeTest {
         assertNotNull(ingredients);
         assertTrue(ingredients.isEmpty());
     }
+
+    @Test
+    void testGettersAndSetters() {
+        Recipe recipe = new Recipe();
+
+        recipe.setId("123");
+        assertEquals("123", recipe.getId());
+
+        recipe.setName("Jollof Rice");
+        assertEquals("Jollof Rice", recipe.getName());
+
+        recipe.setCategory("Chicken");
+        assertEquals("Chicken", recipe.getCategory());
+
+        recipe.setArea("Nigerian");
+        assertEquals("Nigerian", recipe.getArea());
+
+        recipe.setDescription("Cook rice.");
+        assertEquals("Cook rice.", recipe.getDescription());
+
+        recipe.setImageUrl("https://www.themealdb.com/images/media/meals/8cvkcz1766596315.jpg");
+        assertEquals("https://www.themealdb.com/images/media/meals/8cvkcz1766596315.jpg", recipe.getImageUrl());
+    }
 }

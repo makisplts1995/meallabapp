@@ -1,7 +1,7 @@
 package gr.unipi.meallab.network;
 
 import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
+
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
@@ -25,9 +25,10 @@ public class MealApiConnector {
              * Debugging: Εμφανίζει τα requests/responses στην κονσόλα,
              * για να βλέπουμε τι στέλνουμε/λαμβάνουμε
              */
-            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+            /*
+             * Debugging: Removed Logging Interceptor
+             */
             OkHttpClient client = new OkHttpClient.Builder()
-                    .addInterceptor(logging)
                     .build();
 
             /*

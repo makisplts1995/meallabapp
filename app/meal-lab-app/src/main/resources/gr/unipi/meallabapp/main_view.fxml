@@ -32,7 +32,7 @@
              <Button text="Meal Lab" styleClass="icon-button" style="-fx-font-size: 18px; -fx-background-color: transparent; -fx-font-weight: bold;" />
              
              <!-- Λίστα επιλογής τρόπου αναζήτησης -->
-             <ComboBox fx:id="searchTypeCombo" prefWidth="140.0" promptText="Search Mode" />
+             <ComboBox fx:id="searchTypeCombo" prefWidth="180.0" promptText="Search Mode" />
              
              <!-- Στοιχεία ελέγχου αναζήτησης (το πεδίο κειμένου και τα κουμπιά αλλάζουν ορατότητα ανάλογα με την επιλογή) -->
              <TextField fx:id="searchField" promptText="Enter search term..." prefWidth="250" onAction="#handleSearch" />
@@ -42,7 +42,17 @@
              <Button fx:id="ingredientBtn" mnemonicParsing="false" onAction="#handleSearchIngredient" text="Find Ingredient" visible="false" managed="false" />
              
              <!-- Κουμπί για τυχαία συνταγή -->
+             <!-- Κουμπί για τυχαία συνταγή -->
              <Button text="I'm Feeling Lucky" onAction="#handleRandom" styleClass="menu-button" />
+
+             <!-- Spacer -->
+            <javafx.scene.layout.Region javafx.scene.layout.HBox.hgrow="ALWAYS" />
+
+             <!-- Πληροφορίες Χρήστη και Logout -->
+             <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                <Label fx:id="userLabel" text="User: Guest" style="-fx-text-fill: #555; -fx-font-weight: bold;" />
+                <Button text="Logout" onAction="#handleLogout" styleClass="button-secondary" style="-fx-padding: 5 15;" />
+             </HBox>
          </children>
       </HBox>
    </top>
@@ -135,10 +145,7 @@
                   <!-- Τίτλος και κατηγορία -->
                   <VBox spacing="8.0">
                       <Label fx:id="mealName" text="Meal Name" wrapText="true" styleClass="title-label" />
-                      <HBox spacing="8.0">
-                          <Label fx:id="categoryLabel" text="Category" styleClass="chip, chip-category" />
-                          <Label fx:id="areaLabel" text="Area" styleClass="chip, chip-area" />
-                      </HBox>
+                       <Label fx:id="tagsLabel" text="Category | Area" styleClass="chip, chip-category" />
                   </VBox>
 
                   <!-- Κουμπιά ενεργειών επάνω στην επιλεγμένη συνταγή -->
