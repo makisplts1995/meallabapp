@@ -8,21 +8,28 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-/*Προσαρμοσμένο κελί λίστας (Custom ListCell) για την εμφάνιση συνταγών. 
-Επιτρέπει να εμφανίζουμε εικόνα και όνομα δίπλα-δίπλα αντί για απλό κείμενο.*/
+/*
+ * Προσαρμοσμένο κελί λίστας (Custom ListCell) για την εμφάνιση συνταγών.
+ * Αντί για απλό κείμενο, δείχνουμε:
+ * - Thumbnail εικόνα (50x50)
+ * - Όνομα συνταγής (bold)
+ * - Category και Area chips (colored badges)
+ * 
+ * Το custom rendering βελτιώνει την UX και κάνει τη λίστα πιο αναγνωρίσιμη.
+ */
 public class RecipeListCell extends ListCell<Recipe> {
     private final ImageView imageView = new ImageView();
     private final Label nameLabel = new Label();
     private final Label categoryLabel = new Label();
     private final Label areaLabel = new Label();
 
-    // Containers
-    private final HBox chipsBox = new HBox(5, categoryLabel, areaLabel); // Chips δίπλα-δίπλα
-    private final VBox textContainer = new VBox(5, nameLabel, chipsBox); // Όνομα πάνω, chips κάτω
-    private final HBox root = new HBox(10, imageView, textContainer); // Εικόνα αριστερά, κείμενα δεξιά
+    // Containers για διάταξη
+    private final HBox chipsBox = new HBox(5, categoryLabel, areaLabel);
+    private final VBox textContainer = new VBox(5, nameLabel, chipsBox);
+    private final HBox root = new HBox(10, imageView, textContainer);
 
     public RecipeListCell() {
-        // Ρυθμίσεις εμφάνισης για την εικόνα
+        // Ρυθμίσεις εικόνας
         imageView.setFitWidth(50);
         imageView.setFitHeight(50);
         imageView.setPreserveRatio(true);
@@ -41,30 +48,25 @@ public class RecipeListCell extends ListCell<Recipe> {
     }
 
     /*
-     * Η μέθοδος updateItem καλείται αυτόματα από το JavaFX για να ενημερώσει το
-     * περιεχόμενο του κελιού.
-     * 
-     * @param item Η συνταγή που πρέπει να εμφανιστεί.
-     * 
-     * @param empty Αν το κελί είναι άδειο.
+     * Η updateItem τρέχει αυτόματα και ενημερώνει το κελί.
      */
     @Override
     protected void updateItem(Recipe item, boolean empty) {
         super.updateItem(item, empty);
 
-        // Αν είναι άδειο, καθαρίζουμε τα περιεχόμενα
+        // Αν είναι άδειο, δεν δείχνουμε τίποτα
         if (empty || item == null) {
             setText(null);
             setGraphic(null);
         } else {
-            // Αν έχουμε συνταγή, βάζουμε το όνομα και την εικόνα
+            // Βάζουμε όνομα και εικόνα
             nameLabel.setText(item.getName());
             categoryLabel.setText(item.getCategory());
             areaLabel.setText(item.getArea());
 
             if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
                 try {
-                    // Φόρτωση εικόνας στο background για να μην κολλάει το UI
+                    // Φόρτωση εικόνας (background)
                     imageView.setImage(new Image(item.getImageUrl(), 50, 50, true, true, true));
                 } catch (Exception e) {
                     imageView.setImage(null);

@@ -21,20 +21,14 @@ public class MealApiConnector {
     public static MealApiInterface getMealApiInterface() {
         if (mealApiInterface == null) {
 
-            /*
-             * Debugging: Εμφανίζει τα requests/responses στην κονσόλα,
-             * για να βλέπουμε τι στέλνουμε/λαμβάνουμε
-             */
-            /*
-             * Debugging: Removed Logging Interceptor
-             */
             OkHttpClient client = new OkHttpClient.Builder()
                     .build();
 
-            /*
-             * Setup Retrofit: Σύνδεση Base URL, Jackson Converter (για JSON) και OkHttp
-             * Client
-             */
+            // Συνδυάζει τρία βασικά στοιχεία:
+            // 1. Base URL - Η διεύθυνση του API
+            // 2. Converter Factory - Μετατρέπει JSON σε Java objects (Jackson)
+            // 3. HTTP Client - Το OkHttp που κάνει τα requests
+
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .addConverterFactory(JacksonConverterFactory.create())

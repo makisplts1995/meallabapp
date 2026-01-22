@@ -50,7 +50,9 @@
         </ScrollPane>
     </center>
     <bottom>
-        <HBox alignment="CENTER_RIGHT" style="-fx-padding: 10;">
+        <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding: 10;">
+             <!-- Print Button -->
+            <Button text="Print Recipe" onAction="#handlePrint" styleClass="button-primary"/>
             <Button text="Close" onAction="#handleClose" styleClass="button-secondary"/>
         </HBox>
     </bottom>

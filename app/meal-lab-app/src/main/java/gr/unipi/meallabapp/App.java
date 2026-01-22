@@ -13,24 +13,20 @@ import java.io.IOException;
  */
 public class App extends Application {
 
-    /*
-     * Κρατάμε το primaryStage ως static,
-     * για να είναι προσβάσιμο και από άλλες κλάσεις π.χ. WelcomeController)
-     */
+    // Κρατάμε το Stage static για να μπορούμε να το αλλάζουμε από παντού
     public static Stage primaryStage;
     private static Scene scene;
 
     /*
-     * Η μέθοδος start καλείται αυτόματα όταν ξεκινάει η εφαρμογή.
-     * Εδώ ρυθμίζουμε την αρχική εικόνα.
+     * Η μέθοδος start τρέχει μόλις ανοίξει η εφαρμογή.
      */
     @Override
     public void start(Stage stage) throws IOException {
         primaryStage = stage;
-        // Φορτώνουμε αρχικά το welcome_view.fxml που είναι η οθόνη καλωσορίσματος
+        // Φορτώνουμε την οθόνη καλωσορίσματος (welcome_view)
         scene = new Scene(loadFXML("welcome_view"), 1200, 700);
 
-        // Προσθήκη του CSS αρχείου για το στυλ της εφαρμογής
+        // Συνδέουμε το CSS για την εμφάνιση
         scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
 
         // Ρυθμίσεις του παραθύρου (τίτλος και εμφάνιση)
@@ -40,14 +36,17 @@ public class App extends Application {
     }
 
     /*
-     * Βοηθητική μέθοδος για την αλλαγή του FXML αρχείου (Scene Root),
-     * χωρίς να κλείσουμε το παράθυρο.
-     * Χρησιμοποιείται για τη μετάβαση από το Welcome Screen στο Main Screen.
+     * Αλλάζει την οθόνη (Scene) χωρίς να κλείσει το παράθυρο.
      */
     static void setRoot(String fxml) throws IOException {
         scene.setRoot(loadFXML(fxml));
     }
 
+    /*
+     * Βοηθητική μέθοδος που φορτώνει ένα FXML αρχείο και το μετατρέπει σε JavaFX
+     * nodes.
+     * Το FXMLLoader διαβάζει το XML και δημιουργεί αυτόματα το UI hierarchy.
+     */
     private static Parent loadFXML(String fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
         return fxmlLoader.load();

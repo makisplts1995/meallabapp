@@ -1,6 +1,8 @@
 package gr.unipi.meallabapp;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import gr.unipi.meallab.model.Recipe;
 
 import java.io.File;
@@ -17,8 +19,10 @@ public class UserDataService {
 
     // Βασικό όνομα αρχείου
     private static final String DEFAULT_FILE_NAME = "user_data.json";
+    private static final int CURRENT_VERSION = 1;
+
     private String currentFileName = DEFAULT_FILE_NAME;
-    private String currentUsername = "Guest"; // Default username
+    private String currentUsername = "Guest"; // Προεπιλεγμένο όνομα χρήστη (Default username)
 
     // Η μοναδική instance (Singleton)
     private static UserDataService instance;
@@ -29,6 +33,14 @@ public class UserDataService {
 
     // Private constructor για να μην μπορεί να δημιουργηθεί νέο αντικείμενο απ' έξω
     private UserDataService() {
+        /*
+         * Ρυθμίζουμε τον Mapper να αγνοεί πεδία στο JSON που δεν υπάρχουν στην κλάση
+         * UserData. Αυτό βοηθάει στο backward compatibility, ώστε αν έχουμε παλιά
+         * αρχεία
+         * με έξτρα πεδία (π.χ.νέα features/shopping list), η εφαρμογή να μην
+         * κρασάρει.
+         */
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         loadData();
     }
 
@@ -84,6 +96,10 @@ public class UserDataService {
         if (file.exists()) {
             try {
                 data = mapper.readValue(file, UserData.class);
+                // Έλεγχος έκδοσης (version) και εκτέλεση migration αν το αρχείο είναι παλιό
+                if (data.getVersion() < CURRENT_VERSION) {
+                    migrateData(data);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 // Αν αποτύχει η ανάγνωση, ξεκινάμε με κενά δεδομένα
@@ -95,9 +111,25 @@ public class UserDataService {
         }
     }
 
+    private void migrateData(UserData data) {
+        System.out.println("Migrating data from version " + data.getVersion() + " to " + CURRENT_VERSION);
+        /*
+         * Εδώ υλοποιούμε τη λογική για migration (μεταφορά) δεδομένων.
+         * Αν αλλάξει η δομή (schema) στο μέλλον, εδώ θα γράψουμε κώδικα
+         * που μετατρέπει τα παλιά δεδομένα στη νέα μορφή.
+         * Προς το παρόν, απλά ενημερώνουμε το version.
+         */
+
+        // Ενημέρωση της έκδοσης
+        data.setVersion(CURRENT_VERSION);
+        saveData();
+    }
+
     // Αποθήκευση των τρεχόντων δεδομένων στο αρχείο
     private void saveData() {
         try {
+            // Πάντα ενημερώνουμε το version πριν την αποθήκευση
+            data.setVersion(CURRENT_VERSION);
             mapper.writeValue(new File(currentFileName), data);
         } catch (IOException e) {
             e.printStackTrace();
@@ -145,8 +177,17 @@ public class UserDataService {
      */
 
     public static class UserData {
+        private int version = 0;
         private List<Recipe> favorites = new ArrayList<>();
         private List<Recipe> cooked = new ArrayList<>();
+
+        public int getVersion() {
+            return version;
+        }
+
+        public void setVersion(int version) {
+            this.version = version;
+        }
 
         public List<Recipe> getFavorites() {
             return favorites;
@@ -163,5 +204,6 @@ public class UserDataService {
         public void setCooked(List<Recipe> cooked) {
             this.cooked = cooked;
         }
+
     }
 }

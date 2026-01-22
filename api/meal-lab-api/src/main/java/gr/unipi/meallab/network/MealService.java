@@ -39,6 +39,12 @@ public class MealService {
         return executeCallList(call);
     }
 
+    // 1c. Αναζήτηση συνταγών με βάση την περιοχή (Φιλτράρισμα)
+    public List<Recipe> filterMealsByArea(String area) throws IOException {
+        Call<MealResponse> call = api.filterMealsByArea(area);
+        return executeCallList(call);
+    }
+
     // Γενική μέθοδος φιλτραρίσματος βάσει Κατηγορίας (c), Περιοχής (a) ή Υλικού (i)
     // Γενική μέθοδος φιλτραρίσματος βάσει Κατηγορίας (c), Περιοχής (a) ή Υλικού (i)
     public List<Recipe> filterRecipes(String type, String value) throws IOException {

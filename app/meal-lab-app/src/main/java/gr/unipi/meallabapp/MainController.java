@@ -26,22 +26,40 @@ public class MainController {
     private static final String SEARCH_BY_NAME = "By Name";
     private static final String SEARCH_BY_INGREDIENT = "By Ingredient";
     private static final String SEARCH_BY_CATEGORY = "By Category";
+    private static final String SEARCH_BY_AREA = "By Area"; // Νέα επιλογή
 
-    // Κατηγορίες των φαγητών για να το χρησιμοποιήσουμε στην αναζήτηση
+    // Λίστα με τις κατηγορίες φαγητών
     private static final String[] CATEGORIES = {
             "Beef", "Chicken", "Dessert", "Lamb", "Miscellaneous", "Pasta",
             "Pork", "Seafood", "Side", "Starter", "Vegan", "Vegetarian", "Breakfast", "Goat"
     };
 
-    // FXML στοιχεία που συνδέονται με το graphic interface (GUI)
+    // Λίστα με τις διαθέσ ιμες περιοχές/κουζίνες
+    private static final String[] AREAS = {
+            "American", "British", "Canadian", "Chinese", "Croatian", "Dutch",
+            "Egyptian", "Filipino", "French", "Greek", "Indian", "Irish",
+            "Italian", "Jamaican", "Japanese", "Kenyan", "Malaysian", "Mexican",
+            "Moroccan", "Polish", "Portuguese", "Russian", "Spanish", "Thai",
+            "Tunisian", "Turkish", "Ukrainian", "Vietnamese"
+    };
+
+    // Στοιχεία του FXML (GUI)
     @FXML
     private TextField searchField; // Πεδίο κειμένου για αναζήτηση
     @FXML
     private ComboBox<String> categoryCombo; // Λίστα επιλογής κατηγορίας
     @FXML
-    private Accordion mainAccordion; // Το βασικό μενού πλοήγησης (ακορντεόν)
+    private ComboBox<String> areaCombo; // Λίστα επιλογής περιοχής
+    @FXML
+    private Accordion mainAccordion; // Το μενού ακορντεόν
     @FXML
     private TableView<Recipe> searchTable; // Πίνακας αποτελεσμάτων αναζήτησης
+    @FXML
+    private TableColumn<Recipe, String> nameCol;
+    @FXML
+    private TableColumn<Recipe, String> categoryCol;
+    @FXML
+    private TableColumn<Recipe, String> areaCol;
     @FXML
     private TableView<Recipe> favTable; // Πίνακας αγαπημένων
     @FXML
@@ -82,8 +100,8 @@ public class MainController {
     private Recipe currentRecipe;
 
     /*
-     * Η μέθοδος initialize καλείται αυτόματα μετά τη φόρτωση του FXML,
-     * εδώ κάνουμε τις αρχικές ρυθμίσεις της διεπαφής.
+     * Η initialize τρέχει αυτόματα όταν ανοίγει το παράθυρο.
+     * Εδώ κάνουμε τις αρχικές ρυθμίσεις.
      */
     @FXML
     public void initialize() {
@@ -99,6 +117,8 @@ public class MainController {
                 String displayUser = currentUser.substring(0, 1).toUpperCase() + currentUser.substring(1);
                 userLabel.setText("User: " + displayUser);
             }
+            // Override του inline style για να φαίνεται με άσπρα γράμματα
+            userLabel.setStyle("-fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 14px;");
         }
 
         // Initialize search controls
@@ -110,12 +130,27 @@ public class MainController {
         // Αρχική κατάσταση: Δεν βλέπουμε τα αγαπημένα ούτε το ιστορικό
         updateActionButtonsVisibility(true, false, false);
         resetAccordionState(); // Ανοίγουμε την πρώτη καρτέλα
+
+        // Placeholders for clean UI state
+        searchTable.setPlaceholder(new Label("No search results yet. Search to get recipes!"));
+        favTable.setPlaceholder(new Label("No favourites yet"));
+        historyTable.setPlaceholder(new Label("No cooking history! Start cooking to add recipes here!"));
+
+        // handle για ESC για logout
+        mainAccordion.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.setOnKeyPressed(event -> {
+                    if (event.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
+                        handleLogout();
+                    }
+                });
+            }
+        });
     }
 
     /*
-     * Λειτουργία Αποσύνδεσης (Logout).
-     * Όταν πατηθεί το κουμπί, επιστρέφουμε στην αρχική οθόνη
-     * ώστε να μπορεί να συνδεθεί άλλος χρήστης.
+     * Κουμπί Logout.
+     * Μας γυρνάει στην αρχική οθόνη.
      */
     @FXML
     private void handleLogout() {
@@ -127,10 +162,13 @@ public class MainController {
     }
 
     // Ρυθμίζει τα ComboBox και τα listeners για την αναζήτηση
+    // Ρυθμίζει τα ComboBox και τα listeners για την αναζήτηση
     private void setupSearchControls() {
         categoryCombo.setItems(FXCollections.observableArrayList(CATEGORIES));
+        areaCombo.setItems(FXCollections.observableArrayList(AREAS));
         searchTypeCombo
-                .setItems(FXCollections.observableArrayList(SEARCH_BY_NAME, SEARCH_BY_INGREDIENT, SEARCH_BY_CATEGORY));
+                .setItems(FXCollections.observableArrayList(SEARCH_BY_NAME, SEARCH_BY_INGREDIENT, SEARCH_BY_CATEGORY,
+                        SEARCH_BY_AREA));
 
         // Όταν αλλάζει ο τύπος αναζήτησης, αλλάζουμε τα ορατά πεδία
         searchTypeCombo.valueProperty().addListener((obs, oldVal, newVal) -> updateSearchMode(newVal));
@@ -139,6 +177,12 @@ public class MainController {
         categoryCombo.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null)
                 handleSearchByCategory(newVal);
+        });
+
+        // Όταν επιλέγεται περιοχή, κάνουμε αυτόματη αναζήτηση
+        areaCombo.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null)
+                handleSearchByArea(newVal);
         });
     }
 
@@ -186,11 +230,17 @@ public class MainController {
         statusLabel.setText("Searching category: " + category);
         searchField.clear();
         updateActionButtonsVisibility(true, false, false);
+        updateColumnVisibility(true, false); // Δείχνουμε Category, Κρύβουμε Area
         resetAccordionState();
 
         // Εκτέλεση σε ξεχωριστό thread για να μην κολλήσει το UI
         startTask(() -> {
             List<Recipe> results = mealService.filterRecipes("c", category);
+            // API does not return category in filter response, so we set it manually
+            for (Recipe r : results) {
+                r.setCategory(category);
+                r.setArea("-"); // Area is unknown in this mode
+            }
             updateList(searchTable, results, "Found " + results.size() + " recipes in " + category + ".");
         });
     }
@@ -204,6 +254,7 @@ public class MainController {
 
         statusLabel.setText("Searching for: " + query);
         updateActionButtonsVisibility(true, false, false);
+        updateColumnVisibility(true, true); // Εμφάνιση όλων
         resetAccordionState();
 
         startTask(() -> {
@@ -221,6 +272,7 @@ public class MainController {
 
         statusLabel.setText("Searching by ingredient: " + query);
         updateActionButtonsVisibility(true, false, false);
+        updateColumnVisibility(true, true); // Εμφάνιση όλων
         resetAccordionState();
 
         startTask(() -> {
@@ -398,6 +450,7 @@ public class MainController {
     private void displayDetails(Recipe recipe) {
         this.currentRecipe = recipe;
         detailsBox.setVisible(true);
+
         mealName.setText(recipe.getName());
         tagsLabel.setText(recipe.getCategory() + " | " + recipe.getArea());
 
@@ -427,11 +480,26 @@ public class MainController {
         if (mode == null)
             return;
 
+        // Καθαρισμός του προηγούμενου state
+        // για να αποφύγουμε μπέρδεμα του χρήστη στις αλλαγές του search mode
+        searchTable.getItems().clear();
+        statusLabel.setText("");
+        detailsBox.setVisible(false);
+
+        // Reset τις επιλογές για να μην μένουν όταν επιστρέφουμε στο mode
+        // Χρησιμοποιούμε setValue(null) για να εμφανιστεί ξανά το placeholder text
+        categoryCombo.setValue(null);
+        areaCombo.setValue(null);
+        // Καθαρισμός και του text field
+        searchField.clear();
+
         // Κρύβουμε τα πάντα αρχικά
         searchField.setVisible(false);
         searchField.setManaged(false);
         categoryCombo.setVisible(false);
         categoryCombo.setManaged(false);
+        areaCombo.setVisible(false);
+        areaCombo.setManaged(false);
         searchBtn.setVisible(false);
         searchBtn.setManaged(false);
         ingredientBtn.setVisible(false);
@@ -457,7 +525,40 @@ public class MainController {
                 categoryCombo.setVisible(true);
                 categoryCombo.setManaged(true);
             }
+            case SEARCH_BY_AREA -> {
+                areaCombo.setVisible(true);
+                areaCombo.setManaged(true);
+            }
         }
+    }
+
+    // Αναζήτηση με βάση την περιοχή
+    private void handleSearchByArea(String area) {
+        statusLabel.setText("Searching area: " + area);
+        updateActionButtonsVisibility(true, false, false);
+        updateColumnVisibility(false, true); // Κρύβουμε Category, Δείχνουμε Area
+        resetAccordionState();
+
+        startTask(() -> {
+            // Χρησιμοποιούμε το MealService για να πάρουμε τις συνταγές ανά περιοχή
+            List<Recipe> results = mealService.filterMealsByArea(area);
+
+            // Περιορισμός του API: to filter response επιστρέφει μόνο name, thumb, και id.
+            // Ορίζουμε το Area χειροκίνητα επειδή το γνωρίζουμε από το search query.
+            for (Recipe r : results) {
+                r.setArea(area);
+                r.setCategory("-"); // Το Category είναι άγνωστο σε αυτό το mode
+            }
+            updateList(searchTable, results, "Found " + results.size() + " recipes from " + area);
+        });
+    }
+
+    // Βοηθητική μέθοδος για εμφάνιση/απόκρυψη στηλών
+    private void updateColumnVisibility(boolean showCategory, boolean showArea) {
+        if (categoryCol != null)
+            categoryCol.setVisible(showCategory);
+        if (areaCol != null)
+            areaCol.setVisible(showArea);
     }
 
     // Βοηθητική μέθοδος για εκτέλεση εργασιών σε νέο Thread (για να μην παγώνει το
@@ -486,11 +587,21 @@ public class MainController {
             // controller του νέου FXML για να περάσουμε τη συνταγή
             RecipeDetailsController controller = loader.getController();
             controller.setRecipe(currentRecipe);
+            controller.setUsername(userDataService.getUsername()); // Pass username for printing
 
             // Δημιουργία νέου Stage (παραθύρου)
             javafx.stage.Stage stage = new javafx.stage.Stage();
             stage.setTitle("Recipe Details - " + currentRecipe.getName());
-            stage.setScene(new javafx.scene.Scene(root));
+
+            javafx.scene.Scene scene = new javafx.scene.Scene(root);
+            // Add ESC key handler to close the window
+            scene.setOnKeyPressed(event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
+                    stage.close();
+                }
+            });
+
+            stage.setScene(scene);
             stage.show(); // Εμφάνιση παραθύρου
         } catch (Exception e) {
             e.printStackTrace();

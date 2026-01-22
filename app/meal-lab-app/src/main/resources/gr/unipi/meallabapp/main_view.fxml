@@ -37,9 +37,10 @@
              <!-- Στοιχεία ελέγχου αναζήτησης (το πεδίο κειμένου και τα κουμπιά αλλάζουν ορατότητα ανάλογα με την επιλογή) -->
              <TextField fx:id="searchField" promptText="Enter search term..." prefWidth="250" onAction="#handleSearch" />
              <ComboBox fx:id="categoryCombo" promptText="Select Category" prefWidth="200.0" visible="false" managed="false" />
+             <ComboBox fx:id="areaCombo" promptText="Select Area" prefWidth="200.0" visible="false" managed="false" />
              
              <Button fx:id="searchBtn" mnemonicParsing="false" onAction="#handleSearch" text="Search Name" styleClass="button-primary"/>
-             <Button fx:id="ingredientBtn" mnemonicParsing="false" onAction="#handleSearchIngredient" text="Find Ingredient" visible="false" managed="false" />
+             <Button fx:id="ingredientBtn" mnemonicParsing="false" onAction="#handleSearchIngredient" text="Find Ingredient" visible="false" managed="false" styleClass="button-primary" />
              
              <!-- Κουμπί για τυχαία συνταγή -->
              <!-- Κουμπί για τυχαία συνταγή -->
@@ -59,75 +60,75 @@
    
    <!-- Center: Το κεντρικό μέρος με το Accordion (πτυσσόμενο μενού) -->
    <center>
-       <Accordion fx:id="mainAccordion">
-         <panes>
-           <!-- Πάνελ Αποτελεσμάτων Αναζήτησης -->
-           <TitledPane text="Search Results" animated="true">
-               <content>
-                   <TableView fx:id="searchTable">
-                       <columns>
-                           <!-- Στήλες πίνακα: Όνομα, Κατηγορία, Περιοχή -->
-                           <TableColumn text="Name" prefWidth="200">
-                               <cellValueFactory><PropertyValueFactory property="name" /></cellValueFactory>
-                           </TableColumn>
-                           <TableColumn text="Category" prefWidth="100">
-                               <cellValueFactory><PropertyValueFactory property="category" /></cellValueFactory>
-                           </TableColumn>
-                           <TableColumn text="Area" prefWidth="100">
-                               <cellValueFactory><PropertyValueFactory property="area" /></cellValueFactory>
-                           </TableColumn>
-                       </columns>
-                       <columnResizePolicy>
-                           <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                       </columnResizePolicy>
-                   </TableView>
-               </content>
-           </TitledPane>
-           <!-- Πάνελ Αγαπημένων -->
-           <TitledPane text="My Favorites" animated="true">
-               <content>
-                   <TableView fx:id="favTable">
-                       <columns>
-                           <TableColumn text="Name" prefWidth="200">
-                               <cellValueFactory><PropertyValueFactory property="name" /></cellValueFactory>
-                           </TableColumn>
-                           <TableColumn text="Category" prefWidth="100">
-                               <cellValueFactory><PropertyValueFactory property="category" /></cellValueFactory>
-                           </TableColumn>
-                           <TableColumn text="Area" prefWidth="100">
-                               <cellValueFactory><PropertyValueFactory property="area" /></cellValueFactory>
-                           </TableColumn>
-                       </columns>
-                       <columnResizePolicy>
-                           <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                       </columnResizePolicy>
-                   </TableView>
-               </content>
-           </TitledPane>
-           <!-- Πάνελ Ιστορικού -->
-           <TitledPane text="Cooked History" animated="true">
-               <content>
-                   <TableView fx:id="historyTable">
-                       <columns>
-                           <TableColumn text="Name" prefWidth="200">
-                               <cellValueFactory><PropertyValueFactory property="name" /></cellValueFactory>
-                           </TableColumn>
-                           <TableColumn text="Category" prefWidth="100">
-                               <cellValueFactory><PropertyValueFactory property="category" /></cellValueFactory>
-                           </TableColumn>
-                           <TableColumn text="Area" prefWidth="100">
-                               <cellValueFactory><PropertyValueFactory property="area" /></cellValueFactory>
-                           </TableColumn>
-                       </columns>
-                       <columnResizePolicy>
-                           <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                       </columnResizePolicy>
-                   </TableView>
-               </content>
-           </TitledPane>
-         </panes>
-       </Accordion>
-   </center>
+        <Accordion fx:id="mainAccordion">
+          <panes>
+            <!-- Πάνελ Αποτελεσμάτων Αναζήτησης -->
+            <TitledPane text="Search Results" animated="true">
+                <content>
+                    <TableView fx:id="searchTable">
+                        <columns>
+                            <!-- Στήλες πίνακα: Όνομα, Κατηγορία, Περιοχή -->
+                            <TableColumn fx:id="nameCol" text="Name" prefWidth="200">
+                                <cellValueFactory><PropertyValueFactory property="name" /></cellValueFactory>
+                            </TableColumn>
+                            <TableColumn fx:id="categoryCol" text="Category" prefWidth="100">
+                                <cellValueFactory><PropertyValueFactory property="category" /></cellValueFactory>
+                            </TableColumn>
+                            <TableColumn fx:id="areaCol" text="Area" prefWidth="100">
+                                <cellValueFactory><PropertyValueFactory property="area" /></cellValueFactory>
+                            </TableColumn>
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                        </columnResizePolicy>
+                    </TableView>
+                </content>
+            </TitledPane>
+            <!-- Πάνελ Αγαπημένων -->
+            <TitledPane text="My Favorites" animated="true">
+                <content>
+                    <TableView fx:id="favTable">
+                        <columns>
+                            <TableColumn text="Name" prefWidth="200">
+                                <cellValueFactory><PropertyValueFactory property="name" /></cellValueFactory>
+                            </TableColumn>
+                            <TableColumn text="Category" prefWidth="100">
+                                <cellValueFactory><PropertyValueFactory property="category" /></cellValueFactory>
+                            </TableColumn>
+                            <TableColumn text="Area" prefWidth="100">
+                                <cellValueFactory><PropertyValueFactory property="area" /></cellValueFactory>
+                            </TableColumn>
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                        </columnResizePolicy>
+                    </TableView>
+                </content>
+            </TitledPane>
+            <!-- Πάνελ Ιστορικού -->
+            <TitledPane text="Cooked History" animated="true">
+                <content>
+                    <TableView fx:id="historyTable">
+                        <columns>
+                            <TableColumn text="Name" prefWidth="200">
+                                <cellValueFactory><PropertyValueFactory property="name" /></cellValueFactory>
+                            </TableColumn>
+                            <TableColumn text="Category" prefWidth="100">
+                                <cellValueFactory><PropertyValueFactory property="category" /></cellValueFactory>
+                            </TableColumn>
+                            <TableColumn text="Area" prefWidth="100">
+                                <cellValueFactory><PropertyValueFactory property="area" /></cellValueFactory>
+                            </TableColumn>
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                        </columnResizePolicy>
+                    </TableView>
+                </content>
+            </TitledPane>
+          </panes>
+        </Accordion>
+    </center>
    
    <!-- Right: Δεξιά στήλη με τις λεπτομέρειες της επιλεγμένης συνταγής -->
    <right>

@@ -8,16 +8,22 @@ import java.io.IOException;
 Χειρίζεται τις ενέργειες χρήστη πριν μπούμε στην κυρίως εφαρμογή.*/
 public class WelcomeController {
 
-    /*
-     * Καλείται όταν ο χρήστης πατήσει το κουμπί "Start Cooking".
-     * Αλλάζει στην κυρίως οθόνη της εφαρμογής.
-     */
+    // Πεδίο για το όνομα χρήστη
     @FXML
     private javafx.scene.control.TextField usernameField;
 
+    @FXML
+    public void initialize() {
+        usernameField.setOnKeyPressed(event -> {
+            if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
+                handleStart();
+            }
+        });
+    }
+
     /*
-     * Καλείται όταν ο χρήστης πατήσει το κουμπί "Start Cooking".
-     * Ελέγχει το όνομα και αλλάζει στην κυρίως οθόνη.
+     * Όταν πατηθεί το κουμπί "Start Cooking".
+     * Ελέγχει το όνομα και μας βάζει στην εφαρμογή.
      */
     @FXML
     private void handleStart() {
@@ -25,7 +31,7 @@ public class WelcomeController {
 
         if (username == null || username.isBlank()) {
 
-            /* Alert Παράθυρο για υποχρεώτικότητα ονόματος. */
+            // Μήνυμα αν το όνομα είναι κενό
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                     javafx.scene.control.Alert.AlertType.WARNING);
             alert.setTitle("Login Required");
@@ -36,19 +42,16 @@ public class WelcomeController {
         }
 
         /*
-         * Έλεγχος για απαγορευμένους χαρακτήρες.
-         * Επιτρέπουμε μόνο γράμματα (Ελληνικά/Αγγλικά), αριθμούς και κενά.
-         * Έτσι αποφεύγουμε προβλήματα με το σύστημα αρχείων και διενέξεις σε αυτά (π.χ.
-         * *makis
-         * vs ?makis), θα είχαμε πρόσβαση απο 2 users στο ίδιο αρχείο.
+         * Ελέγχουμε αν έχει μόνο γράμματα και αριθμούς.
+         * Έτσι αποφεύγουμε προβλήματα με τα αρχεία (π.χ. ειδικούς χαρακτήρες).
          */
-        if (!username.matches("^[\\p{L}0-9 ]+$")) {
+        if (!username.matches("^[a-zA-Z0-9 ]+$")) {
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                     javafx.scene.control.Alert.AlertType.ERROR);
             alert.setTitle("Invalid Username");
             alert.setHeaderText(null);
             alert.setContentText(
-                    "Username can only contain letters, numbers, and spaces.\nSpecial characters are not allowed.");
+                    "Username can only contain Latin letters, numbers, and spaces.\nSpecial characters are not allowed.");
             alert.showAndWait();
             return;
         }

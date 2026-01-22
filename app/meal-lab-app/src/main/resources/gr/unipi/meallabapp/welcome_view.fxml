@@ -7,32 +7,27 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<!-- 
-    Οθόνη καλωσορίσματος (Welcome Screen)
-    Χρησιμοποιούμε StackPane για να κεντράρουμε το περιεχόμενο.
-    Ο Controller που διαχειρίζεται αυτή την οθόνη είναι ο WelcomeController.
--->
 <StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gr.unipi.meallabapp.WelcomeController" styleClass="welcome-pane" prefHeight="700.0" prefWidth="1200.0" stylesheets="@style.css">
     <children>
-        <!-- VBox για κάθετη στοίχιση των στοιχείων (Τίτλος, Υπότιτλος, Κουμπί) -->
-        <VBox alignment="CENTER" spacing="40.0">
+        <VBox alignment="CENTER" spacing="50.0">
             <children>
-                <Label text="Welcome to Meal Lab" style="-fx-font-size: 48px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-                <Label text="Discover your next favorite meal" style="-fx-font-size: 24px; -fx-text-fill: #7f8c8d;" />
+                <!-- Cooking Emoji Icon -->
+                <Label text="👨‍🍳" styleClass="welcome-emoji" />
                 
-                <!-- Πεδίο εισαγωγής ονόματος χρήστη -->
-                <VBox alignment="CENTER" spacing="10.0">
-                    <Label text="Enter your name to continue:" style="-fx-font-size: 16px; -fx-text-fill: #34495e;" />
-                     <!-- fx:id="usernameField" -->
-                    <javafx.scene.control.TextField fx:id="usernameField" promptText="Your Name (e.g. Makis)" maxWidth="300.0" 
-                                                    style="-fx-font-size: 16px; -fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #bdc3c7;" />
+                <!-- Title -->
+                <VBox alignment="CENTER" spacing="8.0">
+                    <Label text="Welcome to Meal Lab" styleClass="welcome-title" />
+                    <Label text="Discover your next favorite meal" styleClass="welcome-subtitle" />
                 </VBox>
-
-                <!-- 
-                    Κουμπί για έναρξη της εφαρμογής.
-                    Το onAction="#handleStart" καλεί τη μέθοδο handleStart στον Controller.
-                -->
-                <Button text="Start Cooking" onAction="#handleStart" styleClass="button-primary" style="-fx-font-size: 20px; -fx-padding: 15 40; -fx-cursor: hand;" />
+                
+                <!-- Input Card -->
+                <VBox alignment="CENTER" spacing="18.0" style="-fx-background-color: white; -fx-padding: 35 45; -fx-background-radius: 16; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.12), 20, 0, 0, 4);" maxWidth="420.0">
+                    <Label text="Enter your name to continue:" styleClass="welcome-label" />
+                    <javafx.scene.control.TextField fx:id="usernameField" promptText="Your Name" 
+                                                    styleClass="welcome-input" />
+                    <Button text="Start Cooking" onAction="#handleStart" styleClass="welcome-input-button" 
+                            maxWidth="Infinity" />
+                </VBox>
             </children>
         </VBox>
     </children>
