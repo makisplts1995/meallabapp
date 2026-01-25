@@ -144,31 +144,31 @@
   -fx-font-size: 13px;
 }
 
-.table-row-cell {
-  -fx-background-color: #fafafa;
-  -fx-border-color: transparent #ececec #ececec transparent;
-  -fx-padding: 5 8;
-  -fx-cell-size: 32px;
-}
-
-.table-row-cell:odd {
-  -fx-background-color: #f5f5f5;
-}
-
 .table-row-cell:selected {
-  -fx-background-color: linear-gradient(to right, #d90429, #c90424);
-  -fx-text-fill: white;
-  -fx-font-weight: bold;
+    -fx-background-color: linear-gradient(to right, #d90429, #c90424);
+    -fx-font-weight: bold;
+
 }
 
-.table-row-cell:hover {
-  -fx-background-color: #e9ecef;
-  -fx-text-fill: black;
+
+.table-row-cell:selected:hover {
+    -fx-background-color: #e9ecef;
 }
 
 .table-row-cell:selected .text {
-  -fx-fill: white;
+    -fx-fill: white;
 }
+
+
+.table-row-cell:hover .text {
+    -fx-fill: black !important;
+}
+
+
+.table-row-cell .text {
+    -fx-fill: -fx-text-background-color; 
+}
+
 
 .accordion {
   -fx-background-color: #e8e8e8;
