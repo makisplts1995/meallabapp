@@ -17,15 +17,7 @@ import java.util.List;
 import javafx.scene.Node;
 import javafx.print.PageLayout;
 
-/*
- * Controller για την οθόνη λεπτομερειών συνταγής (Recipe Details).
- * Αυτή η οθόνη ανοίγει σε νέο παράθυρο και δείχνει:
- * - Φωτογραφία της συνταγής
- * - Πλήρη λίστα υλικών
- * - Αναλυτικές οδηγίες μαγειρέματος
- * 
- * Περιλαμβάνει επίσης λειτουργία εκτύπωσης (Print).
- */
+//Controller για την οθόνη λεπτομερειών συνταγής (Recipe Details).
 public class RecipeDetailsController {
 
     @FXML
@@ -40,22 +32,17 @@ public class RecipeDetailsController {
     private TextArea ingredientsArea;
     @FXML
     private TextArea instructionsArea;
-
     // Το όνομα του χρήστη - χρησιμοποιείται στην εκτύπωση ("Printed by...")
     private String username;
 
-    /*
-     * Setter για το username.
-     * Καλείται από τον MainController πριν ανοίξει το παράθυρο.
-     */
+    // Setter για το username.
+    // Καλείται από τον MainController πριν ανοίξει το παράθυρο.
     public void setUsername(String username) {
         this.username = username;
     }
 
-    /*
-     * Κύρια μέθοδος που γεμίζει την οθόνη με τα στοιχεία της συνταγής.
-     * Καλείται από τον MainController αφού περάσει το Recipe object.
-     */
+    // Κύρια μέθοδος που γεμίζει την οθόνη με τα στοιχεία της συνταγής.
+    // Καλείται από τον MainController αφού περάσει το Recipe object.
     public void setRecipe(Recipe recipe) {
         mealName.setText(recipe.getName());
         categoryLabel.setText(recipe.getCategory());
@@ -82,10 +69,8 @@ public class RecipeDetailsController {
         }
     }
 
-    /*
-     * Κλείνει το παράθυρο όταν πατηθεί το κουμπί "Close".
-     * Παίρνει το Stage από το scene του τρέχοντος node και το κλείνει.
-     */
+    // Κλείνει το παράθυρο όταν πατηθεί το κουμπί "Close".
+    // Παίρνει το Stage από το scene του τρέχοντος node και το κλείνει.
     @FXML
     private void handleClose() {
         // Κλείνουμε το παράθυρο
@@ -93,19 +78,17 @@ public class RecipeDetailsController {
         stage.close();
     }
 
-    /*
-     * Χειρίζεται την εκτύπωση της συνταγής. με σελιδοποίηση (pagination).
-     * Αν το περιεχόμενο (κυρίως οι οδηγίες) είναι μεγάλο, το σπάμε σε πολλές
-     * σελίδες.
-     * Δημιουργεί ένα custom printable layout με:
-     * 1. Εικόνα της συνταγής (150x150)
-     * 2. Τίτλος με bold font
-     * 3. Υλικά (Ingredients) με header
-     * 4. Οδηγίες (Instructions) με header
-     * 5. "Printed by [username]" στο τέλος
-     * 
-     * Χρησιμοποιεί το JavaFX PrinterJob API για το printing dialog.
-     */
+    // Χειρίζεται την εκτύπωση της συνταγής. με σελιδοποίηση (pagination).
+    // Αν το περιεχόμενο (κυρίως οι οδηγίες) είναι μεγάλο, το σπάμε σε πολλές
+    // σελίδες.
+    // Δημιουργεί ένα custom printable layout με:
+    // 1. Εικόνα της συνταγής (150x150)
+    // 2. Τίτλος με bold font
+    // 3. Υλικά (Ingredients) με header
+    // 4. Οδηγίες (Instructions) με header
+    // 5. "Printed by [username]" στο τέλος
+    //
+    // Χρησιμοποιεί το JavaFX PrinterJob API για το printing dialog.
     @FXML
     private void handlePrint() {
         // Δημιουργία του PrinterJob

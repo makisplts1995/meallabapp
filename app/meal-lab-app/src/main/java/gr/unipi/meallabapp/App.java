@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-/*Η κλάση App είναι το σημείο εκκίνησης της εφαρμογής μας (JavaFX Application).
+/*Η κλάση App είναι το σημείο εκκίνησης της εφαρμογής.
 Εδώ φορτώνουμε το αρχικό FXML και ρυθμίζουμε το βασικό Stage (παράθυρο).
  */
 public class App extends Application {
@@ -17,13 +17,11 @@ public class App extends Application {
     public static Stage primaryStage;
     private static Scene scene;
 
-    /*
-     * Η μέθοδος start τρέχει μόλις ανοίξει η εφαρμογή.
-     */
+    // Η μέθοδος start τρέχει μόλις ανοίξει η εφαρμογή.
     @Override
     public void start(Stage stage) throws IOException {
         primaryStage = stage;
-        // Φορτώνουμε την οθόνη καλωσορίσματος (welcome_view)
+        // Φορτώνουμε την οθόνη welcome_view
         scene = new Scene(loadFXML("welcome_view"), 1200, 700);
 
         // Συνδέουμε το CSS για την εμφάνιση
@@ -35,9 +33,7 @@ public class App extends Application {
         stage.show();
     }
 
-    /*
-     * Αλλάζει την οθόνη (Scene) χωρίς να κλείσει το παράθυρο.
-     */
+    // Αλλάζει την οθόνη (Scene) χωρίς να κλείσει το παράθυρο.
     static void setRoot(String fxml) throws IOException {
         scene.setRoot(loadFXML(fxml));
     }
@@ -52,7 +48,7 @@ public class App extends Application {
         return fxmlLoader.load();
     }
 
-    /* Η main μέθοδος είναι το entry point για την Java εφαρμογή */
+    // Η main
     public static void main(String[] args) {
         launch();
     }

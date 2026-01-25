@@ -16,8 +16,10 @@ import javafx.scene.layout.VBox;
 import java.util.List;
 
 /* Ο Controller της εφαρμογής.
-Εδώ γίνεται η διαχείριση όλων των ενεργειών του χρήστη, όπως αναζήτηση,
-προσθήκη στα αγαπημένα και εμφάνιση λεπτομερειών συνταγής.*/
+ * Εδώ γίνεται ο χαμός με τη διαχείριση του UI και τα calls στο API.
+ * Εδώ γίνεται η διαχείριση όλων των ενεργειών του χρήστη, όπως αναζήτηση,
+ * προσθήκη στα αγαπημένα και εμφάνιση λεπτομερειών συνταγής.
+ */
 public class MainController {
 
     // Σταθερές για τους τίτλους των Tabs και τις επιλογές αναζήτησης
@@ -55,7 +57,7 @@ public class MainController {
     @FXML
     private TableView<Recipe> searchTable; // Πίνακας αποτελεσμάτων αναζήτησης
     @FXML
-    private TableColumn<Recipe, String> nameCol;
+    private TableColumn<Recipe, String> nameCol; // Πεδίο κειμένου για το όνομα της συνταγής
     @FXML
     private TableColumn<Recipe, String> categoryCol;
     @FXML
@@ -88,7 +90,6 @@ public class MainController {
     private Button searchBtn; // Κουμπί εκτέλεσης αναζήτησης
     @FXML
     private Button ingredientBtn; // Κουμπί αναζήτησης με βάση υλικό
-
     @FXML
     private Label userLabel; // εμφάνιση ονόματος χρήστη
 
@@ -99,10 +100,8 @@ public class MainController {
     // Η συνταγή που επιλέγουμε
     private Recipe currentRecipe;
 
-    /*
-     * Η initialize τρέχει αυτόματα όταν ανοίγει το παράθυρο.
-     * Εδώ κάνουμε τις αρχικές ρυθμίσεις.
-     */
+    // Η initialize τρέχει αυτόματα όταν ανοίγει το παράθυρο, Εδώ κάνουμε τις
+    // αρχικές ρυθμίσεις.
     @FXML
     public void initialize() {
         /*
@@ -117,10 +116,9 @@ public class MainController {
                 String displayUser = currentUser.substring(0, 1).toUpperCase() + currentUser.substring(1);
                 userLabel.setText("User: " + displayUser);
             }
-            // Override του inline style για να φαίνεται με άσπρα γράμματα
+            // Override του inline style για το user label για να φαίνεται με άσπρα γράμματα
             userLabel.setStyle("-fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 14px;");
         }
-
         // Initialize search controls
         setupSearchControls(); // Ρύθμιση φίλτρων αναζήτησης
 
@@ -148,10 +146,7 @@ public class MainController {
         });
     }
 
-    /*
-     * Κουμπί Logout.
-     * Μας γυρνάει στην αρχική οθόνη.
-     */
+    // Κουμπί Logout,γυρνάει στο welcome view
     @FXML
     private void handleLogout() {
         try {
@@ -161,7 +156,6 @@ public class MainController {
         }
     }
 
-    // Ρυθμίζει τα ComboBox και τα listeners για την αναζήτηση
     // Ρυθμίζει τα ComboBox και τα listeners για την αναζήτηση
     private void setupSearchControls() {
         categoryCombo.setItems(FXCollections.observableArrayList(CATEGORIES));
@@ -242,6 +236,8 @@ public class MainController {
                 r.setArea("-"); // Area is unknown in this mode
             }
             updateList(searchTable, results, "Found " + results.size() + " recipes in " + category + ".");
+            // System.out.println("Debug: Category list updated");
+            // System.out.println("Debug: Category list updated");
         });
     }
 
@@ -474,8 +470,8 @@ public class MainController {
         }
     }
 
-    // Αλλάζει την ορατότητα των πεδίων αναζήτησης ανάλογα με την επιλογή
-    // στοComboBox
+    // Αλλάζει την ορατότητα των πεδίων αναζήτησης ανάλογα με την επιλογή στο
+    // ComboBox
     private void updateSearchMode(String mode) {
         if (mode == null)
             return;
@@ -490,7 +486,6 @@ public class MainController {
         // Χρησιμοποιούμε setValue(null) για να εμφανιστεί ξανά το placeholder text
         categoryCombo.setValue(null);
         areaCombo.setValue(null);
-        // Καθαρισμός και του text field
         searchField.clear();
 
         // Κρύβουμε τα πάντα αρχικά
@@ -543,8 +538,8 @@ public class MainController {
             // Χρησιμοποιούμε το MealService για να πάρουμε τις συνταγές ανά περιοχή
             List<Recipe> results = mealService.filterMealsByArea(area);
 
-            // Περιορισμός του API: to filter response επιστρέφει μόνο name, thumb, και id.
-            // Ορίζουμε το Area χειροκίνητα επειδή το γνωρίζουμε από το search query.
+            // το filter response επιστρέφει μόνο name, thumb, και id οπότε
+            // ορίζουμε το Area χειροκίνητα επειδή το γνωρίζουμε από το search query.
             for (Recipe r : results) {
                 r.setArea(area);
                 r.setCategory("-"); // Το Category είναι άγνωστο σε αυτό το mode
@@ -584,7 +579,7 @@ public class MainController {
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("recipe_details.fxml"));
             javafx.scene.Parent root = loader.load();
 
-            // controller του νέου FXML για να περάσουμε τη συνταγή
+            // ρυθμίζουμε τον controller για να στείλουμε τη συνταγή
             RecipeDetailsController controller = loader.getController();
             controller.setRecipe(currentRecipe);
             controller.setUsername(userDataService.getUsername()); // Pass username for printing
@@ -624,7 +619,6 @@ public class MainController {
         // Αυτόματη προσαρμογή μεγέθους για να φαίνεται όλο το κείμενο
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.setMinHeight(Region.USE_PREF_SIZE);
-
         return alert.showAndWait(); // Περιμένουμε την απάντηση του χρήστη
     }
 
