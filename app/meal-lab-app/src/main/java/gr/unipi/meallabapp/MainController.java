@@ -244,6 +244,13 @@ public class MainController {
     // Αναζήτηση με βάση το όνομα (χειριστής κουμπιού "Search")
     @FXML
     private void handleSearch() {
+        // Σε mode ingredient για να κάνει search με το enter
+        String mode = searchTypeCombo.getValue();
+        if (SEARCH_BY_INGREDIENT.equals(mode)) {
+            handleSearchIngredient();
+            return;
+        }
+
         String query = searchField.getText();
         if (query.isBlank())
             return;

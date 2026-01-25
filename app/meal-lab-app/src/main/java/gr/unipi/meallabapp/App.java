@@ -31,6 +31,7 @@ public class App extends Application {
         stage.setTitle("Meal Lab App");
         stage.setScene(scene);
         stage.show();
+
     }
 
     // Αλλάζει την οθόνη (Scene) χωρίς να κλείσει το παράθυρο.

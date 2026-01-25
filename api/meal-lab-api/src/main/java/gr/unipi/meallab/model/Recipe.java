@@ -101,10 +101,7 @@ public class Recipe {
         this.imageUrl = imageUrl;
     }
 
-    /*
-     * Επεξεργασία των δυναμικών πεδίων για τη δημιουργία της λίστας ingredients
-     * (Lazy Loading)
-     */
+    // Επεξεργασία των δυναμικών πεδίων για τη δημιουργία της λίστας ingredients
     public List<Ingredient> getIngredients() {
         if (ingredients == null) {
             ingredients = new ArrayList<>();
