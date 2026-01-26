@@ -327,10 +327,13 @@ public class MainController {
     private void handleAddToFavorites() {
         if (currentRecipe == null)
             return;
-        userDataService.addFavorite(currentRecipe);
-        statusLabel.setText("Added to Favorites: " + currentRecipe.getName());
-        // Εμφάνιση ενημερωτικού μηνύματος (Information Alert) επιτυχίας
-        showAlert("Success", "Recipe added to favorites successfully.", AlertType.INFORMATION);
+        try {
+            userDataService.addFavorite(currentRecipe);
+            statusLabel.setText("Added to Favorites: " + currentRecipe.getName());
+            showAlert("Success", "Recipe added to favorites successfully.", AlertType.INFORMATION);
+        } catch (Exception e) {
+            showAlert("Error", "Could not save favorite: " + e.getMessage(), AlertType.ERROR);
+        }
     }
 
     // Κουμπί σήμανσης ως μαγειρεμένο
@@ -338,11 +341,13 @@ public class MainController {
     private void handleMarkAsCooked() {
         if (currentRecipe == null)
             return;
-        userDataService.addCooked(currentRecipe);
-        statusLabel.setText("Marked as Cooked: " + currentRecipe.getName());
-        // Εμφάνιση ενημερωτικού μηνύματος (Information Alert) ότι η ενέργεια
-        // ολοκληρώθηκε
-        showAlert("Success", "Recipe marked as cooked.", AlertType.INFORMATION);
+        try {
+            userDataService.addCooked(currentRecipe);
+            statusLabel.setText("Marked as Cooked: " + currentRecipe.getName());
+            showAlert("Success", "Recipe marked as cooked.", AlertType.INFORMATION);
+        } catch (Exception e) {
+            showAlert("Error", "Could not save history: " + e.getMessage(), AlertType.ERROR);
+        }
     }
 
     // Κουμπί αφαίρεσης από τα αγαπημένα
@@ -360,16 +365,20 @@ public class MainController {
 
         // Αν ο χρήστης πάτησε OK, προχωράμε στη διαγραφή
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            userDataService.removeFavorite(currentRecipe);
-            statusLabel.setText("Removed from Favorites: " + currentRecipe.getName());
+            try {
+                userDataService.removeFavorite(currentRecipe);
+                statusLabel.setText("Removed from Favorites: " + currentRecipe.getName());
 
-            // Ανανέωση της λίστας αν είμαστε ήδη στην καρτέλα των αγαπημένων
-            TitledPane expanded = mainAccordion.getExpandedPane();
-            if (expanded != null && TITLE_FAVORITES.equals(expanded.getText())) {
-                handleShowFavorites();
-                if (favTable.getItems().isEmpty()) {
-                    detailsBox.setVisible(false); // Κρύψε τις λεπτομέρειες αν άδειασε η λίστα
+                // Ανανέωση της λίστας αν είμαστε ήδη στην καρτέλα των αγαπημένων
+                TitledPane expanded = mainAccordion.getExpandedPane();
+                if (expanded != null && TITLE_FAVORITES.equals(expanded.getText())) {
+                    handleShowFavorites();
+                    if (favTable.getItems().isEmpty()) {
+                        detailsBox.setVisible(false); // Κρύψε τις λεπτομέρειες αν άδειασε η λίστα
+                    }
                 }
+            } catch (Exception e) {
+                showAlert("Error", "Could not remove favorite: " + e.getMessage(), AlertType.ERROR);
             }
         }
     }
@@ -390,16 +399,20 @@ public class MainController {
                 "Mark recipe as uncooked? This will remove it from history.", AlertType.CONFIRMATION);
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            userDataService.removeCooked(currentRecipe);
-            statusLabel.setText("Removed from Cooked History: " + currentRecipe.getName());
+            try {
+                userDataService.removeCooked(currentRecipe);
+                statusLabel.setText("Removed from Cooked History: " + currentRecipe.getName());
 
-            // Ανανέωση της λίστας αν είμαστε στο ιστορικό
-            TitledPane expanded = mainAccordion.getExpandedPane();
-            if (expanded != null && TITLE_HISTORY.equals(expanded.getText())) {
-                handleShowCooked();
-                if (historyTable.getItems().isEmpty()) {
-                    detailsBox.setVisible(false);
+                // Ανανέωση της λίστας αν είμαστε στο ιστορικό
+                TitledPane expanded = mainAccordion.getExpandedPane();
+                if (expanded != null && TITLE_HISTORY.equals(expanded.getText())) {
+                    handleShowCooked();
+                    if (historyTable.getItems().isEmpty()) {
+                        detailsBox.setVisible(false);
+                    }
                 }
+            } catch (Exception e) {
+                showAlert("Error", "Could not remove history: " + e.getMessage(), AlertType.ERROR);
             }
         }
     }
@@ -570,7 +583,13 @@ public class MainController {
             try {
                 task.run();
             } catch (Exception e) {
-                Platform.runLater(() -> statusLabel.setText("Error occurred: " + e.getMessage()));
+                Platform.runLater(() -> {
+                    String msg = e.getMessage();
+                    if (msg == null)
+                        msg = e.toString();
+                    statusLabel.setText("Error occurred: " + msg);
+                    showAlert("Error", "An error occurred: " + msg, AlertType.ERROR);
+                });
                 e.printStackTrace();
             }
         }).start();

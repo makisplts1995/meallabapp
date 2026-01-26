@@ -41,7 +41,13 @@ public class UserDataService {
          * κρασάρει.
          */
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        loadData();
+        try {
+            loadData();
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Start with empty data if loading fails
+            data = new UserData();
+        }
     }
 
     // Μέθοδος για να πάρουμε το μοναδικό instance της υπηρεσίας
@@ -53,7 +59,7 @@ public class UserDataService {
     }
 
     // Setter για να αλλάζουμε το αρχείο στα JUnit tests
-    public void setFileNameForTesting(String fileName) {
+    public void setFileNameForTesting(String fileName) throws IOException {
         this.currentFileName = fileName;
         loadData(); // Ξαναφορτώνουμε τα δεδομένα από το νέο αρχείο
     }
@@ -64,7 +70,7 @@ public class UserDataService {
      * και ενημερώνει το όνομα του αρχείου (currentFileName).
      * Έτσι, κάθε χρήστης έχει τη δική του ανεξάρτητη λίστα αγαπημένων.
      */
-    public void setUser(String username) {
+    public void setUser(String username) throws IOException {
         if (username != null && !username.trim().isEmpty()) {
             this.currentUsername = username.trim();
             /*
@@ -91,19 +97,13 @@ public class UserDataService {
     }
 
     // Φόρτωση δεδομένων από το αρχείο JSON κατά την εκκίνηση
-    private void loadData() {
+    private void loadData() throws IOException {
         File file = new File(currentFileName);
         if (file.exists()) {
-            try {
-                data = mapper.readValue(file, UserData.class);
-                // Έλεγχος έκδοσης (version) και εκτέλεση migration αν το αρχείο είναι παλιό
-                if (data.getVersion() < CURRENT_VERSION) {
-                    migrateData(data);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                // Αν αποτύχει η ανάγνωση, ξεκινάμε με κενά δεδομένα
-                data = new UserData();
+            data = mapper.readValue(file, UserData.class);
+            // Έλεγχος έκδοσης (version) και εκτέλεση migration αν το αρχείο είναι παλιό
+            if (data.getVersion() < CURRENT_VERSION) {
+                migrateData(data);
             }
         } else {
             // Αν δεν υπάρχει το αρχείο, δημιουργούμε νέο αντικείμενο
@@ -111,7 +111,7 @@ public class UserDataService {
         }
     }
 
-    private void migrateData(UserData data) {
+    private void migrateData(UserData data) throws IOException {
         System.out.println("Migrating data from version " + data.getVersion() + " to " + CURRENT_VERSION);
         /*
          * Εδώ υλοποιούμε τη λογική για migration (μεταφορά) δεδομένων.
@@ -126,23 +126,18 @@ public class UserDataService {
     }
 
     // Αποθήκευση των τρεχόντων δεδομένων στο αρχείο
-    private void saveData() {
-        try {
-            // Πάντα ενημερώνουμε το version πριν την αποθήκευση
-            data.setVersion(CURRENT_VERSION);
-            mapper.writeValue(new File(currentFileName), data);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void saveData() throws IOException {
+        // Πάντα ενημερώνουμε το version πριν την αποθήκευση
+        data.setVersion(CURRENT_VERSION);
+        mapper.writeValue(new File(currentFileName), data);
     }
 
-    // ================= Μέθοδοι Getter / Setter / Add / Remove ================= //
-
+    // μέθοδοι getter / setter / add / remove
     public List<Recipe> getFavorites() {
         return data.getFavorites();
     }
 
-    public void addFavorite(Recipe recipe) {
+    public void addFavorite(Recipe recipe) throws IOException {
         // Ελέγχουμε αν υπάρχει ήδη για να μην έχουμε διπλές εγγραφές
         if (data.getFavorites().stream().noneMatch(r -> r.getId().equals(recipe.getId()))) {
             data.getFavorites().add(recipe);
@@ -150,7 +145,7 @@ public class UserDataService {
         }
     }
 
-    public void removeFavorite(Recipe recipe) {
+    public void removeFavorite(Recipe recipe) throws IOException {
         data.getFavorites().removeIf(r -> r.getId().equals(recipe.getId()));
         saveData();
     }
@@ -159,14 +154,14 @@ public class UserDataService {
         return data.getCooked();
     }
 
-    public void addCooked(Recipe recipe) {
+    public void addCooked(Recipe recipe) throws IOException {
         if (data.getCooked().stream().noneMatch(r -> r.getId().equals(recipe.getId()))) {
             data.getCooked().add(recipe);
             saveData();
         }
     }
 
-    public void removeCooked(Recipe recipe) {
+    public void removeCooked(Recipe recipe) throws IOException {
         data.getCooked().removeIf(r -> r.getId().equals(recipe.getId()));
         saveData();
     }

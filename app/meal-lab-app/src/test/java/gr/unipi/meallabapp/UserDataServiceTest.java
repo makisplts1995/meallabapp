@@ -42,12 +42,16 @@ class UserDataServiceTest {
 
     public UserDataServiceTest() {
         // Χρήση ξεχωριστού αρχείου για τα tests
-        service.setFileNameForTesting(TEST_FILE);
+        try {
+            service.setFileNameForTesting(TEST_FILE);
+        } catch (java.io.IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
     @Order(1)
-    void testAddFavorite() {
+    void testAddFavorite() throws java.io.IOException {
         Recipe recipe = new Recipe();
         recipe.setId("99999");
         recipe.setName("Test Recipe");
@@ -59,7 +63,7 @@ class UserDataServiceTest {
 
     @Test
     @Order(2)
-    void testRemoveFavorite() {
+    void testRemoveFavorite() throws java.io.IOException {
         Recipe recipe = new Recipe();
         recipe.setId("99999");
 
@@ -70,7 +74,7 @@ class UserDataServiceTest {
 
     @Test
     @Order(3)
-    void testAddCooked() {
+    void testAddCooked() throws java.io.IOException {
         Recipe recipe = new Recipe();
         recipe.setId("88888");
         recipe.setName("Cooked Recipe");
@@ -82,7 +86,7 @@ class UserDataServiceTest {
 
     @Test
     @Order(4)
-    void testMultiUserIsolation() {
+    void testMultiUserIsolation() throws java.io.IOException {
         // Ensure clean state from previous runs
         new File("user_data_usera.json").delete();
         new File("user_data_userb.json").delete();
@@ -120,7 +124,7 @@ class UserDataServiceTest {
 
     @Test
     @Order(6)
-    void testInvalidCharacters() {
+    void testInvalidCharacters() throws java.io.IOException {
         // Δοκιμή με απαγορευμένους χαρακτήρες (Windows reserved chars)
         // π.χ. < > : " / \ | ? *
         String trickyName = "My<User/Name:is*Makis?";
@@ -140,7 +144,7 @@ class UserDataServiceTest {
 
     @Test
     @Order(5)
-    void testGreekUser() {
+    void testGreekUser() throws java.io.IOException {
         // Δοκιμή με Ελληνικό όνομα
         service.setUser("Μάκης");
 

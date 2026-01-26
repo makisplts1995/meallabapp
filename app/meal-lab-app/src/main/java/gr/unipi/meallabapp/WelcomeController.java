@@ -57,13 +57,17 @@ public class WelcomeController {
         }
 
         // Ορισμός του χρήστη στο Service
-        UserDataService.getInstance().setUser(username);
-
         try {
+            UserDataService.getInstance().setUser(username);
             // Χρησιμοποιούμε τη μέθοδο setRoot της κλάσης App για να αλλάξουμε το FXML
             App.setRoot("main_view");
         } catch (IOException e) {
             e.printStackTrace();
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                    javafx.scene.control.Alert.AlertType.ERROR);
+            alert.setTitle("Login Failed");
+            alert.setContentText("Could not load user data: " + e.getMessage());
+            alert.showAndWait();
         }
     }
 }

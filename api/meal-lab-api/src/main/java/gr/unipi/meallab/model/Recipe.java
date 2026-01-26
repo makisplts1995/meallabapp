@@ -120,4 +120,15 @@ public class Recipe {
         }
         return ingredients;
     }
+
+    // Helper method to get ingredients formatted as a bulleted list string
+    public String getFormattedIngredients() {
+        StringBuilder sb = new StringBuilder();
+        if (getIngredients() != null) {
+            for (Ingredient ing : getIngredients()) {
+                sb.append("• ").append(ing.getName()).append(": ").append(ing.getMeasure()).append("\n");
+            }
+        }
+        return sb.toString();
+    }
 }
