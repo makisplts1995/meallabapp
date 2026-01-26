@@ -198,13 +198,19 @@ public class MainController {
     private void setupAccordion() {
         mainAccordion.expandedPaneProperty().addListener((obs, oldPane, newPane) -> {
             if (newPane != null) {
+                // Καθαρισμός του παραθύρου όταν αλλάζουμε καρτέλα
+                detailsBox.setVisible(false);
+                currentRecipe = null;
+                searchTable.getSelectionModel().clearSelection();
+                favTable.getSelectionModel().clearSelection();
+                historyTable.getSelectionModel().clearSelection();
+
                 String title = newPane.getText();
                 if (TITLE_FAVORITES.equals(title)) {
                     handleShowFavorites(); // Αν ανοίξουν τα αγαπημένα, φόρτωσέ τα
                 } else if (TITLE_HISTORY.equals(title)) {
                     handleShowCooked(); // Αν ανοίξει το ιστορικό, φόρτωσέ το
                 } else {
-                    // Search Results
                     // Αποτελέσματα αναζήτησης
                     updateActionButtonsVisibility(true, false, false);
                 }
