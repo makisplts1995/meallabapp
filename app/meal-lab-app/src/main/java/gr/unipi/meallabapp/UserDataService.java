@@ -1,0 +1,204 @@
+package gr.unipi.meallabapp;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import gr.unipi.meallab.model.Recipe;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+/*Υπηρεσία διαχείρισης δεδομένων χρήστη (UserDataService). 
+Αποθηκεύει και διαβάζει τα δεδομένα (Αγαπημένα, Ιστορικό) σε αρχείο JSON.
+Χρησιμοποιεί το μοτίβο Singleton ώστε να έχουμε μόνο ένα αντικείμενο
+διαχείρισης σε όλη την εφαρμογή.
+ */
+public class UserDataService {
+
+    // Βασικό όνομα αρχείου
+    private static final String DEFAULT_FILE_NAME = "user_data.json";
+    private static final int CURRENT_VERSION = 1;
+
+    private String currentFileName = DEFAULT_FILE_NAME;
+    private String currentUsername = "Guest"; // Προεπιλεγμένο όνομα χρήστη (Default username)
+
+    // Η μοναδική instance (Singleton)
+    private static UserDataService instance;
+    // Jackson Mapper για μετατροπή Java αντικειμένων σε JSON και αντίστροφα
+    private final ObjectMapper mapper = new ObjectMapper();
+    // Τα δεδομένα που διαχειριζόμαστε (Favorites & Cooked History)
+    private UserData data;
+
+    // Private constructor για να μην μπορεί να δημιουργηθεί νέο αντικείμενο απ' έξω
+    private UserDataService() {
+        /*
+         * Ρυθμίζουμε τον Mapper να αγνοεί πεδία στο JSON που δεν υπάρχουν στην κλάση
+         * UserData. Αυτό βοηθάει στο backward compatibility, ώστε αν έχουμε παλιά
+         * αρχεία
+         * με έξτρα πεδία (π.χ.νέα features/shopping list), η εφαρμογή να μην
+         * κρασάρει.
+         */
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        try {
+            loadData();
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Start with empty data if loading fails
+            data = new UserData();
+        }
+    }
+
+    // Μέθοδος για να πάρουμε το μοναδικό instance της υπηρεσίας
+    public static synchronized UserDataService getInstance() {
+        if (instance == null) {
+            instance = new UserDataService();
+        }
+        return instance;
+    }
+
+    // Setter για να αλλάζουμε το αρχείο στα JUnit tests
+    public void setFileNameForTesting(String fileName) throws IOException {
+        this.currentFileName = fileName;
+        loadData(); // Ξαναφορτώνουμε τα δεδομένα από το νέο αρχείο
+    }
+
+    /*
+     * Ορισμός χρήστη και αλλαγή αρχείου αποθήκευσης,
+     * Αυτή η μέθοδος δέχεται το όνομα του χρήστη (username)
+     * και ενημερώνει το όνομα του αρχείου (currentFileName).
+     * Έτσι, κάθε χρήστης έχει τη δική του ανεξάρτητη λίστα αγαπημένων.
+     */
+    public void setUser(String username) throws IOException {
+        if (username != null && !username.trim().isEmpty()) {
+            this.currentUsername = username.trim();
+            /*
+             * Καθαρισμός ονόματος και μετατροπή σε πεζά (case insensitive)
+             * για να μην έχουμε προβλήματα με την αποθήκευση και το handle των users.
+             * Π.χ. το "Makis" ή το "MAKIS" γίνεται "makis" και το αρχείο
+             * "user_data_makis.json"
+             */
+            String safeName = username.trim().toLowerCase().replaceAll("[^a-z0-9]", "_");
+            this.currentFileName = "user_data_" + safeName + ".json";
+        } else {
+            this.currentUsername = "Guest";
+            this.currentFileName = DEFAULT_FILE_NAME;
+        }
+        loadData(); // Φόρτωση δεδομένων του συγκεκριμένου χρήστη
+    }
+
+    public String getCurrentUserFile() {
+        return currentFileName;
+    }
+
+    public String getUsername() {
+        return currentUsername;
+    }
+
+    // Φόρτωση δεδομένων από το αρχείο JSON κατά την εκκίνηση
+    private void loadData() throws IOException {
+        File file = new File(currentFileName);
+        if (file.exists()) {
+            data = mapper.readValue(file, UserData.class);
+            // Έλεγχος έκδοσης (version) και εκτέλεση migration αν το αρχείο είναι παλιό
+            if (data.getVersion() < CURRENT_VERSION) {
+                migrateData(data);
+            }
+        } else {
+            // Αν δεν υπάρχει το αρχείο, δημιουργούμε νέο αντικείμενο
+            data = new UserData();
+        }
+    }
+
+    private void migrateData(UserData data) throws IOException {
+        System.out.println("Migrating data from version " + data.getVersion() + " to " + CURRENT_VERSION);
+        /*
+         * Εδώ υλοποιούμε τη λογική για migration (μεταφορά) δεδομένων.
+         * Αν αλλάξει η δομή (schema) στο μέλλον, εδώ θα γράψουμε κώδικα
+         * που μετατρέπει τα παλιά δεδομένα στη νέα μορφή.
+         * Προς το παρόν, απλά ενημερώνουμε το version.
+         */
+
+        // Ενημέρωση της έκδοσης
+        data.setVersion(CURRENT_VERSION);
+        saveData();
+    }
+
+    // Αποθήκευση των τρεχόντων δεδομένων στο αρχείο
+    private void saveData() throws IOException {
+        // Πάντα ενημερώνουμε το version πριν την αποθήκευση
+        data.setVersion(CURRENT_VERSION);
+        mapper.writeValue(new File(currentFileName), data);
+    }
+
+    // μέθοδοι getter / setter / add / remove
+    public List<Recipe> getFavorites() {
+        return data.getFavorites();
+    }
+
+    public void addFavorite(Recipe recipe) throws IOException {
+        // Ελέγχουμε αν υπάρχει ήδη για να μην έχουμε διπλές εγγραφές
+        if (data.getFavorites().stream().noneMatch(r -> r.getId().equals(recipe.getId()))) {
+            data.getFavorites().add(recipe);
+            saveData(); // Αποθήκευση αμέσως μετά την αλλαγή
+        }
+    }
+
+    public void removeFavorite(Recipe recipe) throws IOException {
+        data.getFavorites().removeIf(r -> r.getId().equals(recipe.getId()));
+        saveData();
+    }
+
+    public List<Recipe> getCooked() {
+        return data.getCooked();
+    }
+
+    public void addCooked(Recipe recipe) throws IOException {
+        if (data.getCooked().stream().noneMatch(r -> r.getId().equals(recipe.getId()))) {
+            data.getCooked().add(recipe);
+            saveData();
+        }
+    }
+
+    public void removeCooked(Recipe recipe) throws IOException {
+        data.getCooked().removeIf(r -> r.getId().equals(recipe.getId()));
+        saveData();
+    }
+
+    /*
+     * Εσωτερική κλάση (Inner Class) που αναπαριστά τη δομή του JSON αρχείου.
+     * Περιέχει λίστες για τα favorites και τα cooked .
+     */
+
+    public static class UserData {
+        private int version = 0;
+        private List<Recipe> favorites = new ArrayList<>();
+        private List<Recipe> cooked = new ArrayList<>();
+
+        public int getVersion() {
+            return version;
+        }
+
+        public void setVersion(int version) {
+            this.version = version;
+        }
+
+        public List<Recipe> getFavorites() {
+            return favorites;
+        }
+
+        public void setFavorites(List<Recipe> favorites) {
+            this.favorites = favorites;
+        }
+
+        public List<Recipe> getCooked() {
+            return cooked;
+        }
+
+        public void setCooked(List<Recipe> cooked) {
+            this.cooked = cooked;
+        }
+
+    }
+}

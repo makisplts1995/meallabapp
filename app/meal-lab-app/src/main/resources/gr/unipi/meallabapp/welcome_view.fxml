@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gr.unipi.meallabapp.WelcomeController" styleClass="welcome-pane" prefHeight="700.0" prefWidth="1200.0" stylesheets="@style.css">
+    <children>
+        <VBox alignment="CENTER" spacing="50.0">
+            <children>
+                <!-- Cooking Emoji Icon -->
+                <Label text="👨‍🍳" styleClass="welcome-emoji" />
+                
+                <!-- Title -->
+                <VBox alignment="CENTER" spacing="8.0">
+                    <Label text="Welcome to Meal Lab" styleClass="welcome-title" />
+                    <Label text="Discover your next favorite meal" styleClass="welcome-subtitle" />
+                </VBox>
+                
+                <!-- Input Card -->
+                <VBox alignment="CENTER" spacing="18.0" style="-fx-background-color: white; -fx-padding: 35 45; -fx-background-radius: 16; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.12), 20, 0, 0, 4);" maxWidth="420.0">
+                    <Label text="Enter your name to continue:" styleClass="welcome-label" />
+                    <javafx.scene.control.TextField fx:id="usernameField" promptText="Your Name" 
+                                                    styleClass="welcome-input" />
+                    <Button text="Start Cooking" onAction="#handleStart" styleClass="welcome-input-button" 
+                            maxWidth="Infinity" />
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</StackPane>
